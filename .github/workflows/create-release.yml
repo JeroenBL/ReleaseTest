@@ -49,7 +49,7 @@ jobs:
           files: |
             readme.md
             create.ps1
-          token: ${{ secrets.GH-TOKEN }}
+          token: ${{ secrets.GHTOKEN }}
 
       - name: Get the created release ID
         run: echo "Release ID - ${{ steps.create_release.outputs.id }}"
