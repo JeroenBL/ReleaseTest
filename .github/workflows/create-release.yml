@@ -1,4 +1,4 @@
-name: Create Release
+name: Create Release and Increment Tag
 
 on:
   push:
@@ -10,25 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '14'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          readme.md
-          create.ps1
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Determine next version
+        id: determine_version
+        run: |
+          # Get the latest tag
+          latest_tag=$(git describe --tags --abbrev=0)
 
-    - name: Get the created release ID
-      run: echo "Release ID - ${{ steps.create_release.outputs.id }}"
+          # Extract the version number
+          version_number=$(echo $latest_tag | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
+
+          # Increment the patch version
+          next_version=$(echo $version_number | awk -F. -v OFS=. '{$3++; print}')
+
+          echo "::set-output name=next_version::$next_version"
+
+      - name: Create and push new tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "v${{ steps.determine_version.outputs.next_version }}" -m "Version ${{ steps.determine_version.outputs.next_version }}"
+          git push origin "v${{ steps.determine_version.outputs.next_version }}"
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            readme.md
+            create.ps1
+          token: ${{ secrets.GITHUB_TOKEN }}
+        if: startsWith(github.ref, 'refs/heads/main')
+
+      - name: Get the created release ID
+        run: echo "Release ID - ${{ steps.create_release.outputs.id }}"
