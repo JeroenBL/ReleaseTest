@@ -24,14 +24,14 @@ jobs:
       - name: Determine next version
         id: determine_version
         run: |
-          # Get the latest tag
-          latest_tag=$(git describe --tags --abbrev=0)
+          # Get the latest tag if available, otherwise set a default version
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
 
           # Extract the version number
-          version_number=$(echo $latest_tag | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
+          version_number=$(echo "$latest_tag" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
 
           # Increment the patch version
-          next_version=$(echo $version_number | awk -F. -v OFS=. '{$3++; print}')
+          next_version=$(echo "$version_number" | awk -F. -v OFS=. '{$3++; print}')
 
           echo "::set-output name=next_version::$next_version"
 
