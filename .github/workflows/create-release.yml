@@ -10,10 +10,6 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
 
-    outputs:
-      env:
-        RELEASE_TAG: ${{ steps.extract_version.outputs.RELEASE_TAG }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -26,19 +22,6 @@ jobs:
           Write-Host "Extracted version: $versionLine"
           echo "RELEASE_TAG=$versionLine" >> $GITHUB_ENV
 
-  create_release:
-    needs: release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: "Debug info"
-        run: |
-          echo "GITHUB_REF: $GITHUB_REF"
-          echo "RELEASE_TAG: $RELEASE_TAG"
-
       - name: "Create release"
         uses: "actions/github-script@v6"
         with:
@@ -48,11 +31,11 @@ jobs:
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                name: "${{ needs.release.outputs.RELEASE_TAG }}",
+                name: process.env.RELEASE_TAG,
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
-                tag_name: "${{ needs.release.outputs.RELEASE_TAG }}",
+                tag_name: process.env.RELEASE_TAG,
               });
               core.exportVariable('RELEASE_ID', response.data.id);
               core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
