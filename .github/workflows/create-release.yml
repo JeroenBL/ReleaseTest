@@ -13,7 +13,14 @@ jobs:
 
     steps:
       - name: "Determine tag"
-        run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            RELEASE_TAG=$(echo "${GITHUB_REF#refs/tags/}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+            echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
+          else
+            echo "Not a tag push. Skipping release step."
+            exit 0
+          fi
 
       - name: "Create release"
         uses: "actions/github-script@v6"
