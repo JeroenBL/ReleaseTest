@@ -17,7 +17,7 @@ jobs:
         id: extract_version
         shell: pwsh 
         run: |
-          $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version (\d+\.\d+\.\d+)' | Out-Null; $matches[1]
+          $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version: (.+)$' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
           Write-Host "Extracted version: $matches[1]"
           echo "RELEASE_TAG=$($matches[1])" >> $GITHUB_ENV
 
