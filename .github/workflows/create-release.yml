@@ -34,9 +34,9 @@ jobs:
                 draft: false,
                 generate_release_notes: true,
                 tag_name: "${{ env.RELEASE_TAG }}",
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
+                owner: context.repo.owner,
                 prerelease: false,
+                repo: context.repo.repo,
               });
               core.exportVariable('RELEASE_ID', response.data.id);
               core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
