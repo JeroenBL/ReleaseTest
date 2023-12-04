@@ -15,9 +15,9 @@ jobs:
 
       - name: Extract version from PowerShell script
         id: extract_version
+        shell: pwsh 
         run: |
-          # Assuming your version line in the script looks like "# Version X.X.X"
-          $versionLine = Get-Content -Path /create.ps1 | Select-String -Pattern '^# Version (\d+\.\d+\.\d+)' | Out-Null; $matches[1]
+          $versionLine = Get-Content -Path path/to/your/script.ps1 | Select-String -Pattern '^# Version (\d+\.\d+\.\d+)' | Out-Null; $matches[1]
           Write-Host "Extracted version: $matches[1]"
           echo "RELEASE_TAG=$($matches[1])" >> $GITHUB_ENV
 
