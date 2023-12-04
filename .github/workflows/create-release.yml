@@ -19,6 +19,7 @@ jobs:
             echo "Not a tag push. Skipping release step."
             exit 0
           fi
+          echo "Debug - RELEASE_TAG: $RELEASE_TAG"
 
       - name: "Debug info"
         run: |
