@@ -33,7 +33,7 @@ jobs:
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                tag_name: "${{ env.RELEASE_TAG }}",
+                tag_name: "1.0.3",
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
