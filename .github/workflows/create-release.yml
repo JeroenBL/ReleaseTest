@@ -21,17 +21,16 @@ jobs:
           $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version: (.+)$' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
           Write-Host "Extracted version: $versionLine"
           echo "$versionLine" : $RELEASE_TAG
+          env:
+            RELEASE_TAG: ${{ vars.RELEASE_TAG }}
 
-      - name: "Create release"
-        env:
-          RELEASE_TAG: ${{ vars.RELEASE_TAG }}
-        
+      - name: "Create release"       
         uses: "actions/github-script@v6"
         with:
           github-token: "${{ secrets.GHTOKEN }}"
           script: |
             try {
-              const releaseTag = ${{RELEASE_TAG}}
+              const releaseTag = ${{vars.RELEASE_TAG}}
               console.log(`Release Tag is: ${releaseTag}`);
               const response = await github.rest.repos.createRelease({
                 draft: false,
