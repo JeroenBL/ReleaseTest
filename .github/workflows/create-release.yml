@@ -33,7 +33,7 @@ jobs:
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                tag_name: ${{vars.RELEASE_TAG}},
+                tag_name: "${{vars.RELEASE_TAG}}",
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
