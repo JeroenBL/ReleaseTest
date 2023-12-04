@@ -40,21 +40,8 @@ jobs:
           echo "RELEASE_TAG: $RELEASE_TAG"
 
       - name: "Create release"
-        uses: "actions/github-script@v6"
-        with:
-          github-token: "${{ secrets.GHTOKEN }}"
-          script: |
-            try {
-              const response = await github.rest.repos.createRelease({
-                draft: false,
-                generate_release_notes: true,
-                tag_name: "${{ needs.release.outputs.RELEASE_TAG }}",
-                owner: context.repo.owner,
-                prerelease: false,
-                repo: context.repo.repo,
-              });
-              core.exportVariable('RELEASE_ID', response.data.id);
-              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
-            } catch (error) {
-              core.setFailed(error.message);
-            }
+        run: |
+          RELEASE_TAG=$(cat RELEASE_TAG.txt)
+          echo "Creating release for tag: $RELEASE_TAG"
+          git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
+          git push origin "$RELEASE_TAG"
