@@ -27,7 +27,7 @@ jobs:
           github-token: "${{ secrets.GHTOKEN }}"
           script: |
             try {
-              const releaseTag = needs.release.outputs.RELEASE_TAG
+              const releaseTag = context.outputs.RELEASE_TAG
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
