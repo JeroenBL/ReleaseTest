@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+env:
+  RELEASE_TAG: "1.0.0"
 
 jobs:
   release:
@@ -20,28 +22,24 @@ jobs:
         run: |
           $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version: (.+)$' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
           Write-Host "Extracted version: $versionLine"
-          echo $versionLine > $GITHUB_WORKSPACE/RELEASE_TAG.txt
-
-      - name: Set up output
-        id: set_output
-        run: echo "::set-output name=RELEASE_TAG::$(cat $GITHUB_WORKSPACE/RELEASE_TAG.txt)"
-
-  create_release:
-    needs: release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: "Debug info"
-        run: |
-          echo "GITHUB_REF: $GITHUB_REF"
-          echo "RELEASE_TAG: $RELEASE_TAG"
+          echo "RELEASE_TAG=$versionLine" >> $GITHUB_ENV
 
       - name: "Create release"
-        run: |
-          RELEASE_TAG=$(cat $GITHUB_WORKSPACE/RELEASE_TAG.txt)
-          echo "Creating release for tag: $RELEASE_TAG"
-          git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
-          git push origin "$RELEASE_TAG"
+        uses: "actions/github-script@v6"
+        with:
+          github-token: "${{ secrets.GHTOKEN }}"
+          script: |
+            try {
+              const response = await github.rest.repos.createRelease({
+                draft: false,
+                generate_release_notes: true,
+                tag_name: $RELEASE_TAG,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+              });
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }
