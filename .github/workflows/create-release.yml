@@ -10,16 +10,22 @@ jobs:
     name: "Release"
     runs-on: "ubuntu-latest"
     steps:
-      - name: "Determine tag"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Extract version from PowerShell script
+        id: extract_version
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            RELEASE_TAG=$(echo "${GITHUB_REF#refs/tags/}" | sed 's/[^a-zA-Z0-9._-]/_/g')
-            echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
-          else
-            echo "Not a tag push. Skipping release step."
-            exit 0
-          fi
-          echo "Debug - RELEASE_TAG: $RELEASE_TAG"
+          # Assuming your version line in the script looks like "# Version X.X.X"
+          $versionLine = Get-Content -Path /create.ps1 | Select-String -Pattern '^# Version (\d+\.\d+\.\d+)' | Out-Null; $matches[1]
+          Write-Host "Extracted version: $matches[1]"
+          echo "RELEASE_TAG=$($matches[1])" >> $GITHUB_ENV
+
+      - name: Create and push tag
+        if: env.RELEASE_TAG
+        run: |
+          git tag -a $RELEASE_TAG -m "Release $RELEASE_TAG"
+          git push origin $RELEASE_TAG
 
       - name: "Debug info"
         run: |
