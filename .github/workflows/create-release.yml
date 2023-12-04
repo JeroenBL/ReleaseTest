@@ -1,4 +1,4 @@
-name: "Release"
+name: Release
 
 on:
   push:
@@ -7,31 +7,36 @@ on:
 
 jobs:
   release:
-    name: "Release"
-    runs-on: "ubuntu-latest"
+    name: Release
+    runs-on: ubuntu-latest
+    outputs:
+      # Define an output variable for RELEASE_TAG
+      id: release
+      value: ${{ steps.extract_version.outputs.RELEASE_TAG }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Extract version from PowerShell script
         id: extract_version
-        shell: pwsh 
+        shell: pwsh
         run: |
           $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version: (.+)$' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
           Write-Host "Extracted version: $versionLine"
-          echo "RELEASE_TAG=$($versionLine)" >> $GITHUB_ENV
+          # Set the RELEASE_TAG as an output
+          echo "::set-output name=RELEASE_TAG::$versionLine"
 
-      - name: Create and push tag
-        if: env.RELEASE_TAG
-        run: |
-          git tag -a $RELEASE_TAG -m "Release $RELEASE_TAG"
-          git push origin $RELEASE_TAG
+  create_release:
+    needs: release
+    runs-on: ubuntu-latest
 
+    steps:
       - name: "Debug info"
         run: |
           echo "GITHUB_REF: $GITHUB_REF"
-          echo "RELEASE_TAG: $RELEASE_TAG"
-
+          echo "RELEASE_TAG: ${{ needs.release.outputs.RELEASE_TAG }}"
+      
       - name: "Create release"
         uses: "actions/github-script@v6"
         with:
@@ -47,7 +52,6 @@ jobs:
                 repo: context.repo.repo,
                 tag_name: process.env.RELEASE_TAG,
               });
-
               core.exportVariable('RELEASE_ID', response.data.id);
               core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
             } catch (error) {
