@@ -25,15 +25,19 @@ jobs:
           echo "RELEASE_TAG=$versionLine" >> "$GITHUB_ENV"
 
       - name: "Create release"
+        env:
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
+        
         uses: "actions/github-script@v6"
         with:
           github-token: "${{ secrets.GHTOKEN }}"
           script: |
             try {
+              const releaseTag = process.env.RELEASE_TAG;
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                tag_name: $RELEASE_TAG
+                tag_name: releaseTag
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
