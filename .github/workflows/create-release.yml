@@ -20,6 +20,11 @@ jobs:
             exit 0
           fi
 
+      - name: "Debug info"
+        run: |
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "RELEASE_TAG: $RELEASE_TAG"
+
       - name: "Create release"
         uses: "actions/github-script@v6"
         with:
@@ -29,7 +34,7 @@ jobs:
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                name: process.env.RELEASE_TAG,  // This line was corrected
+                name: process.env.RELEASE_TAG,
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
