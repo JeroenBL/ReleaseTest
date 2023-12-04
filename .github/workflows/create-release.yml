@@ -25,11 +25,13 @@ jobs:
       - name: "Create release"
         env:
           RELEASE_TAG: ${{ env.RELEASE_TAG }}
-        
+      
         uses: "actions/github-script@v6"
         with:
           github-token: "${{ secrets.GHTOKEN }}"
           script: |
+            const core = require('@actions/core');
+      
             try {
               const releaseTag = process.env.RELEASE_TAG;
               const response = await github.rest.repos.createRelease({
