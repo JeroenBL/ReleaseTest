@@ -18,8 +18,8 @@ jobs:
         shell: pwsh 
         run: |
           $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version: (.+)$' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
-          Write-Host "Extracted version: $matches[1]"
-          echo "RELEASE_TAG=$($matches[1])" >> $GITHUB_ENV
+          Write-Host "Extracted version: $versionLine"
+          echo "RELEASE_TAG=$($versionLine)" >> $GITHUB_ENV
 
       - name: Create and push tag
         if: env.RELEASE_TAG
