@@ -33,14 +33,13 @@ jobs:
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                tag_name: "${{vars.RELEASE_TAG}}",
-                owner: context.repo.owner,
+                tag_name: "${{ env.RELEASE_TAG }}",  # corrected from vars.RELEASE_TAG
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
                 prerelease: false,
-                repo: context.repo.repo,
               });
               core.exportVariable('RELEASE_ID', response.data.id);
               core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
             } catch (error) {
               core.setFailed(error.message);
             }
-
