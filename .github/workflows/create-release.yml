@@ -9,10 +9,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    outputs:
-      # Define an output variable for RELEASE_TAG
-      id: release
-      value: ${{ steps.extract_version.outputs.RELEASE_TAG }}
 
     steps:
       - name: Checkout repository
@@ -24,8 +20,14 @@ jobs:
         run: |
           $versionLine = Get-Content -Path create.ps1 | Select-String -Pattern '^# Version: (.+)$' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
           Write-Host "Extracted version: $versionLine"
-          # Set the RELEASE_TAG as an output
-          echo "::set-output name=RELEASE_TAG::$versionLine"
+          echo "RELEASE_TAG=$versionLine" >> $GITHUB_ENV
+
+      - name: Save RELEASE_TAG to file
+        run: echo "RELEASE_TAG=${RELEASE_TAG}" > release_tag.env
+
+      - name: Set up output
+        id: set_output
+        run: echo "::set-output name=RELEASE_TAG::$(cat release_tag.env)"
 
   create_release:
     needs: release
@@ -35,7 +37,7 @@ jobs:
       - name: "Debug info"
         run: |
           echo "GITHUB_REF: $GITHUB_REF"
-          echo "RELEASE_TAG: ${{ needs.release.outputs.RELEASE_TAG }}"
+          echo "RELEASE_TAG: $RELEASE_TAG"
       
       - name: "Create release"
         uses: "actions/github-script@v6"
