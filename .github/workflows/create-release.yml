@@ -30,12 +30,10 @@ jobs:
           github-token: "${{ secrets.GHTOKEN }}"
           script: |
             try {
-              const releaseTag = ${{vars.RELEASE_TAG}}
-              console.log(`Release Tag is: ${releaseTag}`);
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                tag_name: releaseTag,
+                tag_name: ${{vars.RELEASE_TAG}},
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
