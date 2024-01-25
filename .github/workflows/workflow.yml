@@ -1,0 +1,9 @@
+demo:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: JeroenBL/AutoRelease@v0.1
+     - id: autorelease
+       uses: JeroenBL/AutoRelease@v0.1
+     - name: Creates a release
+       run: echo "${{ steps.autorelease.outputs.tag }}"
+       shell: bash
