@@ -11,11 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Run HelloWorldAction
-        id: helloworldaction
-        uses: JeroenBL/HelloWorldAction@v0.1
+      - name: Run AutoRelease
+        id: autorelease
+        uses: JeroenBL/AutoRelease@v0.2
         with:
           UserName: JeroenBL
+          Repository: ReleaseTest
+          GHToken: ${{ secrets.GH_TOKEN }} 
 
       - name: Output message
-        run: echo "${{ steps.helloworldaction.outputs.message }}"
+        run: echo "${{ steps.autorelease.outputs.message }}"
