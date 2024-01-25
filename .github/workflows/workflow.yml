@@ -11,16 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
       - name: Run Custom Action
-        id: autorelease
-        uses: JeroenBL/AutoRelease@v0.1
+        id: helloworldaction
+        uses: JeroenBL/HelloWorldAction@v0.1
         with:
           UserName: JeroenBL
-          Repository: ReleaseTest
-          ReleaseNotes: Test1
-          ReleaseName: Test1
-          Tag: v1.0.1
-          GHToken: ${{ secrets.GH_TOKEN }}
