@@ -11,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - id: autorelease
-      - name: create release
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run Custom Action
+        id: autorelease
         uses: JeroenBL/AutoRelease@v0.1
         with:
           UserName: JeroenBL
