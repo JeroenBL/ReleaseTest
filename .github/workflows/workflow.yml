@@ -1,9 +1,25 @@
- demo:
+name: Custom Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-custom-action:
+
     runs-on: ubuntu-latest
+
     steps:
-     - uses: actions/checkout@v2
-     - id: autorelease
-       uses: JeroenBL/AutoRelease@v0.1
-     - name: Create release
-       run: echo "${{ steps.generatePassword.outputs.tag }}"
-       shell: bash
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run Custom Action
+      uses: JeroenBL/AutoRelease@v0.1
+      with:
+        UserName: JeroenBL
+        Repository: ReleaseTest
+        ReleaseNotes: Test1
+        ReleaseName: Test1
+        Tag: v1.0.1
+        GHToken: ${{ secrets.GH_TOKEN }}
