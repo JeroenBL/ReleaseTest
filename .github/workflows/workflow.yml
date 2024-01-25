@@ -11,8 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Run Custom Action
-        id: helloworldaction
-        uses: JeroenBL/HelloWorldAction@v0.1
+      - uses: JeroenBL/HelloWorldAction@v0.1
+      - id: helloworldaction
         with:
           UserName: JeroenBL
+      - name: Run Custom Action
+        run: echo "${{ steps.helloworldaction.outputs.password }}"
+        shell: bash
