@@ -1,9 +1,9 @@
-demo:
+ demo:
     runs-on: ubuntu-latest
     steps:
-     - uses: JeroenBL/AutoRelease@v0.1
+     - uses: actions/checkout@v2
      - id: autorelease
        uses: JeroenBL/AutoRelease@v0.1
-     - name: Creates a release
-       run: echo "${{ steps.autorelease.outputs.tag }}"
+     - name: Create release
+       run: echo "${{ steps.generatePassword.outputs.tag }}"
        shell: bash
