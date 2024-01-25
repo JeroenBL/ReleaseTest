@@ -11,16 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - id: autorelease
-    - name: create release
-      uses: JeroenBL/AutoRelease@v0.1
-      with:
-        UserName: JeroenBL
-        Repository: ReleaseTest
-        ReleaseNotes: Test1
-        ReleaseName: Test1
-        Tag: v1.0.1
-        GHToken: ${{ secrets.GH_TOKEN }}
+      - uses: actions/checkout@v2
+      - id: autorelease
+      - name: create release
+        uses: JeroenBL/AutoRelease@v0.1
+        with:
+          UserName: JeroenBL
+          Repository: ReleaseTest
+          ReleaseNotes: Test1
+          ReleaseName: Test1
+          Tag: v1.0.1
+          GHToken: ${{ secrets.GH_TOKEN }}
