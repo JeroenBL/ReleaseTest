@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Run AutoRelease
         id: autorelease
         uses: JeroenBL/AutoRelease@v0.2
@@ -19,5 +22,6 @@ jobs:
           Repository: ReleaseTest
           GHToken: ${{ secrets.GHTOKEN }} 
 
-      - name: Output message
-        run: echo "${{ steps.autorelease.outputs.message }}"
+      - name: Display AutoRelease Output
+        run: |
+          echo "AutoRelease Message: ${{ steps.autorelease.outputs.message }}"
