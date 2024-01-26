@@ -1,4 +1,4 @@
-name: Custom Release Workflow
+name: Connector Release Workflow
 
 on:
   push:
