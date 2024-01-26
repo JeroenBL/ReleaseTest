@@ -16,7 +16,7 @@ jobs:
 
       - name: Run AutoRelease
         id: autorelease
-        uses: JeroenBL/AutoRelease@v0.5
+        uses: JeroenBL/AutoRelease@v0.6
         with:
           UserName: JeroenBL
           Repository: ReleaseTest
