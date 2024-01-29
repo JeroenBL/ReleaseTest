@@ -8,14 +8,14 @@ on:
 jobs:
   if_merged:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Run AutoRelease
         id: autorelease
-        uses: JeroenBL/AutoRelease@latest
+        uses: JeroenBL/AutoRelease@v0.7
         with:
           UserName: JeroenBL
           Repository: ReleaseTest
