@@ -1,4 +1,4 @@
-name: ${{ github.repository }} Release
+name: ConnectorRelease
 
 on:
   pull_request:
