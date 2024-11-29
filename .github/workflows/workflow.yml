@@ -15,11 +15,11 @@ jobs:
 
       - name: Run AutoRelease
         id: autorelease
-        uses: JeroenBL/AutoRelease@v0.7
+        uses: JeroenBL/AutoRelease@v0.8
         with:
           UserName: JeroenBL
           Repository: ReleaseTest
-          GHToken: ${{ secrets.GTOKEN }} 
+          GHToken: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Display AutoRelease Output
         run: |
