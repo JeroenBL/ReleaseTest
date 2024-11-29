@@ -1,26 +1,53 @@
-name: ConnectorRelease
+name: Create Release
 
 on:
-  pull_request:
-    types:
-      - closed
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v1.0.0)'
+        required: false
+
+permissions:
+  contents: write
 
 jobs:
-  if_merged:
+  create-release:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Run AutoRelease
-        id: autorelease
-        uses: JeroenBL/AutoRelease@v0.10
-        with:
-          UserName: JeroenBL
-          Repository: ReleaseTest
-          GHToken: ${{ secrets.GITHUB_TOKEN }} 
+    - name: Extract Version
+      id: extract_version
+      run: |
+        if [ -n "${{ github.event.inputs.version }}" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION=$(cat VERSION) # Replace 'VERSION' with your version file path
+        fi
+        echo "Using version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_ENV
 
-      - name: Display AutoRelease Output
-        run: |
-          echo "AutoRelease Message: ${{ steps.autorelease.outputs.message }}"
+    - name: Extract Release Notes
+      id: extract_notes
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          NOTES=$(awk '/## \['"${{ env.version }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md)
+        else
+          NOTES="No changelog found. Ensure CHANGELOG.md exists and includes notes for ${{ env.version }}."
+        fi
+        echo "Release notes extracted: $NOTES"
+        echo "release_notes=$NOTES" >> $GITHUB_ENV
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ env.version }}
+        release_name: ${{ env.version }}
+        body: ${{ env.release_notes }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
