@@ -53,9 +53,13 @@ jobs:
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
-        # Save the release notes to a temporary file to handle multiline content
         echo "$NOTES" > release_notes.txt
       shell: bash
+
+    - name: Output Release Notes (Debug Step)
+      run: |
+        echo "Release Notes:"
+        cat release_notes.txt
 
     - name: Create GitHub Release
       id: create_release
