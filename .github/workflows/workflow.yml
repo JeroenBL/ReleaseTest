@@ -54,12 +54,12 @@ jobs:
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
-        echo "$NOTES" > release_notes.md
+        echo "::set-output name=notes::$NOTES"
 
     - name: Debug Release Notes
       run: |
         echo "Extracted Release Notes:"
-        cat release_notes.md
+        echo "${{ steps.extract_notes.outputs.notes }}"
 
     - name: Create GitHub Release
       id: create_release
@@ -72,7 +72,3 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        body_content=$(cat release_notes.md)
-        echo "body=$body_content" >> $GITHUB_ENV
-
