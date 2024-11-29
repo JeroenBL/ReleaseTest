@@ -40,34 +40,13 @@ jobs:
         fi
         echo "version=$VERSION" >> $GITHUB_ENV
 
-    - name: Extract Release Notes from CHANGELOG.md
-      id: extract_notes
-      run: |
-        if [ -f CHANGELOG.md ]; then
-          NOTES=$(awk '/## \['"${{ env.version }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md)
-          if [ -z "$NOTES" ]; then
-            echo "No release notes found for version ${{ env.version }} in CHANGELOG.md."
-            exit 1
-          fi
-          echo "Release notes extracted."
-        else
-          echo "CHANGELOG.md not found in the repository."
-          exit 1
-        fi
-        echo "::set-output name=notes::$NOTES"
-
-    - name: Debug Release Notes
-      run: |
-        echo "Extracted Release Notes:"
-        echo "${{ steps.extract_notes.outputs.notes }}"
-
-    - name: Create GitHub Release
+    - name: Create GitHub Release with Auto-Generated Notes
       id: create_release
       uses: actions/create-release@v1
       with:
         tag_name: ${{ env.version }}
         release_name: ${{ env.version }}
-        body: ${{ steps.extract_notes.outputs.notes }}
+        generate_release_notes: true
         draft: false
         prerelease: false
       env:
