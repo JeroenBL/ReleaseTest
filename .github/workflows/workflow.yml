@@ -54,16 +54,12 @@ jobs:
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
-        # Escape notes for safe usage in the environment
-        NOTES="${NOTES//'%'/'%25'}"
-        NOTES="${NOTES//$'\n'/'%0A'}"
-        NOTES="${NOTES//$'\r'/'%0D'}"
-        echo "notes=$NOTES" >> $GITHUB_ENV
+        echo "$NOTES" > release_notes.md
 
     - name: Debug Release Notes
       run: |
         echo "Extracted Release Notes:"
-        echo "${{ env.notes }}"
+        cat release_notes.md
 
     - name: Create GitHub Release
       id: create_release
@@ -71,8 +67,12 @@ jobs:
       with:
         tag_name: ${{ env.version }}
         release_name: ${{ env.version }}
-        body: ${{ env.notes }}
+        body: ${{ steps.extract_notes.outputs.notes }}
         draft: false
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        body_content=$(cat release_notes.md)
+        echo "body=$body_content" >> $GITHUB_ENV
+
