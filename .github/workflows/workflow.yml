@@ -49,16 +49,17 @@ jobs:
             echo "No release notes found for version ${{ env.version }} in CHANGELOG.md."
             exit 1
           fi
+          echo "Release notes extracted."
         else
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
         echo "$NOTES" > release_notes.txt
-      shell: bash
+        echo "::set-output name=release_notes::$NOTES"
 
-    - name: Output Release Notes (Debug Step)
+    - name: Debug Release Notes
       run: |
-        echo "Release Notes:"
+        echo "Extracted release notes:"
         cat release_notes.txt
 
     - name: Create GitHub Release
