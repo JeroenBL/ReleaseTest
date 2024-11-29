@@ -44,7 +44,6 @@ jobs:
       id: extract_notes
       run: |
         if [ -f CHANGELOG.md ]; then
-          # Extract content under the matching version heading
           NOTES=$(awk '/## \['"${{ env.version }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md)
           if [ -z "$NOTES" ]; then
             echo "No release notes found for version ${{ env.version }} in CHANGELOG.md."
@@ -54,8 +53,9 @@ jobs:
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
-        echo "Release notes extracted: $NOTES"
-        echo "release_notes=$NOTES" >> $GITHUB_ENV
+        # Save the release notes to a temporary file to handle multiline content
+        echo "$NOTES" > release_notes.txt
+      shell: bash
 
     - name: Create GitHub Release
       id: create_release
@@ -63,7 +63,7 @@ jobs:
       with:
         tag_name: ${{ env.version }}
         release_name: ${{ env.version }}
-        body: ${{ env.release_notes }}
+        body: ${{ steps.extract_notes.outputs.release_notes }}
         draft: false
         prerelease: false
       env:
