@@ -6,6 +6,9 @@ on:
       version:
         description: 'Version number (e.g., v1.0.0). Leave blank to use the latest version from CHANGELOG.md.'
         required: false
+  pull_request:
+    types:
+      - closed
 
 permissions:
   contents: write
@@ -38,15 +41,51 @@ jobs:
             exit 1
           fi
         fi
-        echo "version=$VERSION" >> $GITHUB_ENV
 
-    - name: Create GitHub Release with Auto-Generated Notes
+        # Prepend 'v' if not already present
+        if [[ "$VERSION" != v* ]]; then
+          VERSION="v$VERSION"
+        fi
+
+        echo "version=$VERSION" >> $GITHUB_ENV
+        echo "version_no_v=${VERSION#v}" >> $GITHUB_ENV
+
+    - name: Extract Release Notes from CHANGELOG.md
+      id: extract_notes
+      if: ${{ github.event.inputs.version == '' }} # Skip if a version is provided as input
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          NOTES=$(awk '/## \['"${{ env.version_no_v }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md)
+          if [ -z "$NOTES" ]; then
+            echo "No release notes found for version ${{ env.version_no_v }} in CHANGELOG.md."
+            exit 1
+          fi
+          echo "Release notes extracted."
+        else
+          echo "CHANGELOG.md not found in the repository."
+          exit 1
+        fi
+        echo "::set-output name=notes::$NOTES"
+
+    - name: Default Release Notes
+      id: default_notes
+      if: ${{ github.event.inputs.version != '' }} # Use default notes if a version is provided as input
+      run: |
+        echo "Release notes not provided; using default placeholder."
+        echo "::set-output name=notes::Release notes not provided for version ${{ env.version }}."
+
+    - name: Debug Release Notes
+      run: |
+        echo "Extracted Release Notes:"
+        echo "${{ steps.extract_notes.outputs.notes || steps.default_notes.outputs.notes }}"
+
+    - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       with:
         tag_name: ${{ env.version }}
         release_name: ${{ env.version }}
-        generate_release_notes: true
+        body: ${{ steps.extract_notes.outputs.notes || steps.default_notes.outputs.notes }}
         draft: false
         prerelease: false
       env:
