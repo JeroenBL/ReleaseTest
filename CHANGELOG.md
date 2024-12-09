@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [v2.3.5]
 
-### Added
 - Feature A
 - Feature B
 
