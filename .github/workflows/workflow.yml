@@ -47,45 +47,47 @@ jobs:
           VERSION="v$VERSION"
         fi
 
-        echo "version=$VERSION" >> $GITHUB_ENV
-        echo "version_no_v=${VERSION#v}" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "VERSION_NO_V=${VERSION#v}" >> $GITHUB_ENV
 
     - name: Extract Release Notes from CHANGELOG.md
       id: extract_notes
       if: ${{ github.event.inputs.version == '' }} # Skip if a version is provided as input
       run: |
         if [ -f CHANGELOG.md ]; then
-          NOTES=$(awk '/## \['"${{ env.version_no_v }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md)
+          NOTES=$(awk '/## \['"${{ env.VERSION_NO_V }}"'\]/{flag=1; next} /## \[/{flag=0} flag' CHANGELOG.md)
           if [ -z "$NOTES" ]; then
-            echo "No release notes found for version ${{ env.version_no_v }} in CHANGELOG.md."
+            echo "No release notes found for version ${{ env.VERSION_NO_V }} in CHANGELOG.md."
             exit 1
           fi
-          echo "Release notes extracted."
+          echo "NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
         else
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
-        echo "::set-output name=notes::$NOTES"
 
     - name: Default Release Notes
       id: default_notes
       if: ${{ github.event.inputs.version != '' }} # Use default notes if a version is provided as input
       run: |
-        echo "Release notes not provided; using default placeholder."
-        echo "::set-output name=notes::Release notes not provided for version ${{ env.version }}."
+        echo "NOTES<<EOF" >> $GITHUB_ENV
+        echo "Release notes not provided for version ${{ env.VERSION }}." >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Debug Release Notes
       run: |
         echo "Extracted Release Notes:"
-        echo "${{ steps.extract_notes.outputs.notes || steps.default_notes.outputs.notes }}"
+        echo "${{ env.NOTES }}"
 
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: ${{ env.version }}
-        release_name: ${{ env.version }}
-        body: ${{ steps.extract_notes.outputs.notes || steps.default_notes.outputs.notes }}
+        tag_name: ${{ env.VERSION }}
+        release_name: ${{ env.VERSION }}
+        body: ${{ env.NOTES }}
         draft: false
         prerelease: false
       env:
