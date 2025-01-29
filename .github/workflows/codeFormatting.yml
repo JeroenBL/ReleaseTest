@@ -3,7 +3,7 @@ name: PowerShell Code Formatting
 on:
   pull_request:
     branches: [main, develop]
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual execution
 
 jobs:
   format-check:
@@ -24,9 +24,11 @@ jobs:
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
-          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error
-          if ($results) {
-            Write-Host "Code formatting issues found:"
-            $results | Format-Table -AutoSize
-            exit 1
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Warning, Error
+          if ($results.Count -gt 0) {
+            foreach ($result in $results) {
+              Write-Host "::error file=$($result.ScriptPath),line=$($result.Line)::$($result.Message)"
+            }
+            exit 1  # Forces the action to fail if there are formatting issues
           }
+          Write-Host "No formatting issues found."
