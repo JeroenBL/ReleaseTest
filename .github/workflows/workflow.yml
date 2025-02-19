@@ -52,11 +52,13 @@ jobs:
             echo "No release notes found for version ${VERSION_NO_V} in CHANGELOG.md."
             exit 1
           fi
-          echo "RELEASE_NOTES=$(cat release_notes.txt)" >> $GITHUB_ENV
         else
           echo "CHANGELOG.md not found in the repository."
           exit 1
         fi
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        cat release_notes.txt >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Default Release Notes
       if: ${{ github.event.inputs.version != '' }}
