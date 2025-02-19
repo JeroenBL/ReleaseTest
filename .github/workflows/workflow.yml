@@ -1,3 +1,8 @@
+##############################
+# Workflow: Create Release
+# Version:  0.0.2
+##############################
+
 name: Create Release
 
 on:
@@ -71,13 +76,7 @@ jobs:
         echo "${RELEASE_NOTES}"
 
     - name: Create GitHub Release
-      id: create_release
-      uses: actions/create-release@v1.1.4
-      with:
-        tag_name: ${{ env.VERSION }}
-        release_name: ${{ env.VERSION }}
-        body_path: release_notes.txt
-        draft: false
-        prerelease: false
+      run: |
+        gh release create "${VERSION}" --title "${VERSION}" --notes-file release_notes.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
