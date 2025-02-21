@@ -11,15 +11,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up PowerShell
-        uses: actions/setup-pwsh@v2
-
       - name: Install PSScriptAnalyzer
-        run: |
-          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+        shell: pwsh
+        run: Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
 
       - name: Run PSScriptAnalyzer
         id: analyze
+        shell: pwsh
         run: |
           $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Warning,Error | ConvertTo-Json -Depth 10
           if ($results -ne "[]") {
