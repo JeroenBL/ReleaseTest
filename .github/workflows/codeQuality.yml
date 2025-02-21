@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  pull-requests: write  # ✅ Grant permission to post comments on PRs
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
