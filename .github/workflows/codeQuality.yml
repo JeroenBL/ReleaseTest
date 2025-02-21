@@ -24,8 +24,10 @@ jobs:
         run: |
           $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Warning,Error
           if ($results) {
-            $jsonResults = $results | ConvertTo-Json -Depth 10
+            $jsonResults = $results | ConvertTo-Json -Depth 10 -Compress
             $jsonResults | Out-File PSScriptAnalyzerResults.json
+            echo "Issues found:"
+            cat PSScriptAnalyzerResults.json
             echo "::set-output name=issues::$jsonResults"
           } else {
             echo "::set-output name=issues::[]"
