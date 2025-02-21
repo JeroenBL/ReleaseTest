@@ -1,0 +1,58 @@
+name: PowerShell Code Quality
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PowerShell
+        uses: actions/setup-pwsh@v2
+
+      - name: Install PSScriptAnalyzer
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Run PSScriptAnalyzer
+        id: analyze
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Warning,Error | ConvertTo-Json -Depth 10
+          if ($results -ne "[]") {
+            Write-Output "::set-output name=issues::$results"
+          } else {
+            Write-Output "::set-output name=issues::No issues found."
+          }
+
+      - name: Post PR Comment with Analysis Results
+        if: success() || failure()
+        uses: actions/github-script@v7
+        env:
+          ISSUES: ${{ steps.analyze.outputs.issues }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { ISSUES } = process.env;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+
+            let message = "### PowerShell Code Quality Report 🚀\n\n";
+            if (ISSUES && ISSUES !== "No issues found.") {
+              const results = JSON.parse(ISSUES);
+              results.forEach(issue => {
+                message += `- ❌ **${issue.RuleName}** (Severity: ${issue.Severity})\n  - ${issue.Message}\n  - File: \`${issue.ScriptPath}:${issue.Line}\`\n\n`;
+              });
+            } else {
+              message += "✅ No issues found! 🎉";
+            }
+
+            github.rest.issues.createComment({
+              owner: repo.owner,
+              repo: repo.repo,
+              issue_number: prNumber,
+              body: message
+            });
